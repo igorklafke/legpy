@@ -5,4 +5,4 @@ Baixador automático de legendas desenvolvido em Python. Escaneia uma pasta e pr
 
 Aviso
 -----
-Meu primeiro código em Python, com certeza há erros. Sinta-se a vontade para corrigir e submeter um PR.
+Meu primeiro código em Python.
