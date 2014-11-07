@@ -57,16 +57,17 @@ class LegPy():
                         print link_download
                         req = requests.get(link_download)
                         rar_bytes = req.content
-                        with open("temp.rar", "wb") as out_file:
+                        temp_rar = "%s\%s" % (self.path_arquivos, "temp.rar")
+                        with open(temp_rar, "wb") as out_file:
                             out_file.write(rar_bytes)
-                        rf = rarfile.RarFile('temp.rar')
+                        rf = rarfile.RarFile(temp_rar)
                         for f in rf.infolist():
                             if self.nome_arquivo_igual(f.filename):
                                 print(f.filename)
                                 destino = "%s\%s" % (self.path_arquivos, f.filename)
                                 with open(destino, "wb") as out_srt:
                                     out_srt.write(rf.read(f))
-                        os.remove("temp.rar")
+                        os.remove(temp_rar)
 
 args = sys.argv[1:]
 if len(args) > 0:
