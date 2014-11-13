@@ -2,6 +2,7 @@
 import sys, getopt
 import requests
 import rarfile
+import zipfile
 import re
 import os
 import operator
@@ -17,17 +18,21 @@ class LegPy():
         arquivos = os.listdir(path)
 
         for arq in arquivos:
-            nome = arq.upper()
-            buscar = 0
-            if os.path.isdir(nome):
-                buscar = 1
-                nome_sem_ext = arq
+            sub_path = '%s\%s' % (path, arq)
+            if os.path.isdir(sub_path):
+                sub_arquivos = os.listdir(sub_path)
+                for sub_arq in sub_arquivos:
+                    if not os.path.isdir('%s\%s' % (sub_path, sub_arq)):
+                        self.busca_legenda(sub_path, sub_arq)
             else:
-                if nome.endswith('.MKV') or nome.endswith('.MP4') or nome.endswith('.AVI'):
-                    nome_sem_ext = arq[:arq.rindex('.')]
-                    path_srt = '%s\%s.%s' % (path, nome_sem_ext, 'srt')
-                    buscar = not os.path.exists(path_srt)
-            if buscar:
+                self.busca_legenda(path, arq)
+
+    def busca_legenda(self, path, nome):
+        nome_up = nome.upper()
+        if nome_up.endswith('.MKV') or nome_up.endswith('.MP4') or nome_up.endswith('.AVI'):
+            nome_sem_ext = nome[:nome.rindex('.')]
+            path_srt = '%s\%s.%s' % (path, nome_sem_ext, 'srt')
+            if not os.path.exists(path_srt):
                 print "buscando legenda para %s" % nome_sem_ext
                 nome_pesquisa = substitui_caracteres(nome_sem_ext)
                 url = "%s/legenda/busca/%s/1" % (base_url, nome_pesquisa)
@@ -35,6 +40,7 @@ class LegPy():
                 html = r.text
                 parser = self.PesquisaParser(path, nome_sem_ext)
                 parser.feed(html)
+
 
     class PesquisaParser(HTMLParser):
         def __init__(self, path, nome_arquivo):
@@ -58,6 +64,25 @@ class LegPy():
             nome = substitui_caracteres(nome)
             return operator.eq(nome, self.termo_pesquisa)
 
+        def extrair(self, ziprar):
+            extensao = 'srt'
+            destino = '%s\%s.%s' % (self.path_arquivos, self.nome_arquivo, extensao)
+            cont_srts = 0
+            nome_srt = ''
+            baixou = 0
+            for f in ziprar.infolist():
+                if self.nome_arquivo_igual(f.filename):
+                    with open(destino, "wb") as out_srt:
+                        out_srt.write(ziprar.read(f))
+                        baixou = 1
+                else:
+                    if (f.filename.upper().endswith(extensao.upper())):
+                        cont_srts += 1
+                        nome_srt = f
+            if not baixou and operator.eq(cont_srts, 1):
+                with open(destino, "wb") as out_srt:
+                    out_srt.write(ziprar.read(nome_srt))
+
         def handle_starttag(self, tag, attrs):
             if tag == "a":
                 link = attrs[0][1]
@@ -73,16 +98,14 @@ class LegPy():
                         temp_rar = '%s\%s' % (self.path_arquivos, "temp.rar")
                         with open(temp_rar, "wb") as out_file:
                             out_file.write(rar_bytes)
-                        rf = rarfile.RarFile(temp_rar)
-                        for f in rf.infolist():
-                            if self.nome_arquivo_igual(f.filename):
-                                #fname = f.filename
-                                fname = self.nome_arquivo
-                                extensao = 'srt'
-                                #fname = self.termo_pesquisa
-                                destino = '%s\%s.%s' % (self.path_arquivos, fname, extensao)
-                                with open(destino, "wb") as out_srt:
-                                    out_srt.write(rf.read(f))
+                        
+                        if zipfile.is_zipfile(temp_rar):
+                            zf = zipfile.ZipFile(temp_rar)
+                            self.extrair(zf)
+                            zf.close()
+                        else:
+                            rf = rarfile.RarFile(temp_rar)
+                            self.extrair(rf)
                         os.remove(temp_rar)
 
 args = sys.argv[1:]
