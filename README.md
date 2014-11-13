@@ -5,7 +5,7 @@ Baixador automático de legendas desenvolvido em Python. Escaneia uma pasta e pr
 
 ![](http://www.igorklafke.com/img/legpy250.gif)
 
-E com um logo horrível.
+E com um [logo horrível](http://www.horriblelogos.com/legpy/).
 
 Aviso
 -----
