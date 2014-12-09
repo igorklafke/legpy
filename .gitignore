@@ -53,8 +53,11 @@ docs/_build/
 # PyBuilder
 target/
 
-#PyCharm
-.idea
+#VS
+*.pyproj
+*.sln
+*.suo
 
 #LegPy
 UnRAR.exe
+settings.conf
