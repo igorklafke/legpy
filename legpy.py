@@ -72,11 +72,27 @@ class LegPy():
             termos_array = self.termo_pesquisa.split('%20')
             tam = len(termos_array)
             i = 0
+            #print texto
             while contem_termo and i < tam:
                 contem_termo = termos_array[i] in texto.upper()
-                if not contem_termo and operator.eq(termos_array[i].upper(), 'BLURAY'):
+                termou = termos_array[i].upper()
+                if not contem_termo and operator.eq(termou, 'BLURAY'):
                     contem_termo = 'BRRIP' in texto.upper()
+                if operator.eq(termou, '720P'):
+                	contem_termo = True
+            	if operator.eq(termou, 'DIMENSION'):
+            		contem_termo = True
+            	if operator.eq(termou, 'PROPER'):
+            		contem_termo = True
+            	if operator.eq(termou, 'X264'):
+            		contem_termo = True
+            	if operator.eq(termou, 'YIFY'):
+            		contem_termo = True
+            	if operator.eq(termou, 'XVID'):
+            		contem_termo = True
                 i += 1
+                #print termou
+                #print contem_termo
             return contem_termo
 
         def nome_arquivo_igual(self, nome):
@@ -94,13 +110,16 @@ class LegPy():
             nome_srt = ''
             baixou = 0
             for f in ziprar.infolist():
-                if self.nome_arquivo_igual(f.filename):
+            	fname = f.filename
+            	if len(os.path.split(fname)) > 1:
+            		fname = os.path.split(f.filename)[1]
+                if self.nome_arquivo_igual(fname):
                     print "nome arquivo igual"
                     with open(destino, "wb") as out_srt:
                         out_srt.write(ziprar.read(f))
                         baixou = 1
                 else:
-                    if (f.filename.upper().endswith(extensao.upper())):
+                    if (fname.upper().endswith(extensao.upper())):
                         cont_srts += 1
                         nome_srt = f
             if not baixou and operator.eq(cont_srts, 1):
