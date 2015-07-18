@@ -90,6 +90,8 @@ class LegPy():
             		contem_termo = True
             	if operator.eq(termou, 'XVID'):
             		contem_termo = True
+                if operator.eq(termou, 'INTERNAL'):
+            		contem_termo = True
                 i += 1
                 #print termou
                 #print contem_termo
@@ -166,7 +168,7 @@ class SearchDialog(QDialog):
 
         layout = QGridLayout()
 
-        path_label = QLabel(u"Caminho v¡deos")
+        path_label = QLabel(u"Caminho vï¿½deos")
         self.path_edit = QLineEdit()
 
         button = QPushButton("Buscar")
@@ -196,7 +198,7 @@ class LoginDialog(QDialog):
         QDialog.__init__(self)
         self.setWindowTitle("Login Legendas.TV")
         layout = QGridLayout()
-        usuario_label = QLabel(u"Usu rio")
+        usuario_label = QLabel(u"Usuï¿½rio")
         senha_label = QLabel("Senha")
 
         self.status_label = QLabel("")
